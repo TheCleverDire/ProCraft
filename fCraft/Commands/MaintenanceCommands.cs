@@ -1,4 +1,4 @@
-﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +27,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdSave);
             CommandManager.RegisterCommand(CdCheckUpdate); 
             CommandManager.RegisterCommand( CdAutoRankCheck );
+            CommandManager.RegisterCommand( CdSoftware );
         }
         #region DumpStats
 
@@ -1353,7 +1354,7 @@ namespace fCraft {
             DateTime current = File.GetLastWriteTimeUtc(path);
             
             try {
-                Uri uri = new Uri("https://123DMWM.tk/ProCraft/Builds/Latest.zip?");
+                Uri uri = new Uri("https://123DMWM.com/ProCraft/Builds/Latest.zip?");
                 HttpWebRequest request = HttpUtil.CreateRequest(uri, TimeSpan.FromSeconds(10));
                 request.Method = "HEAD";
 
@@ -1366,14 +1367,14 @@ namespace fCraft {
                 player.Message("    &7" + latest.ToLongDateString() + " &Sat &7" + latest.ToLongTimeString());
             } catch (Exception ex) {
                 Logger.Log(LogType.Error, "Updates.UpdaterHandler:" + ex);
-                player.Message("Cannot access http://123dmwm.tk/ at the moment.");
+                player.Message("Cannot access http://123DMWM.com/ at the moment.");
             }
             
             TimeSpan currentDelta = DateTime.UtcNow - current;
             player.Message("Server file last update (&7" + currentDelta.ToMiniString() + " &Sago):");
             player.Message("    &7" + current.ToLongDateString() + " &Sat &7" + current.ToLongTimeString());
 
-            player.Message("Download updated Zip here: &9http://123DMWM.tk/ProCraft/Builds/Latest.zip");
+            player.Message("Download updated Zip here: &9http://123DMWM.com/ProCraft/Builds/Latest.zip");
         }
         #endregion
         #region AutoRankCheck
@@ -1405,6 +1406,48 @@ namespace fCraft {
             AutoRankManager.OutputDetails( player, info );
         }
 
+        #endregion
+        #region Software
+        static readonly CommandDescriptor CdSoftware = new CommandDescriptor
+        {
+            Name = "Software",
+            Aliases = new[] { "SetSoftware", "SW" },
+            Category = CommandCategory.New | CommandCategory.Maintenance,
+            Permissions = new[] { Permission.EditPlayerDB },
+            IsConsoleSafe = true,
+            Help = "Set the colors of the server software name on the server list. &NOnly console may change the actual software name. &NUse reset/default/normal to change it back to &cP&4R&6O&eC&aR&2A&bF&3T",
+            Usage = "/Software <new software name>",
+            Handler = SoftwareHandler
+        };
+
+        static void SoftwareHandler(Player player, CommandReader cmd) {
+
+
+            string newSW = cmd.NextAll().Replace('%', '&');
+            string oldSW = Server.Software;
+            if (String.IsNullOrEmpty(newSW)) {
+                player.Message("The current software name is \"&F{0}&S\"", Server.Software);
+                return;
+            }
+            if (newSW.CaselessEquals("reset") || newSW.CaselessEquals("default") || newSW.CaselessEquals("normal")) {
+                newSW = "&cP&4R&6O&eC&aR&2A&bF&3T";
+            }
+
+            if (newSW == oldSW) {
+                player.Message("Server software is already set to \"&F{1}&S\"", newSW);
+                return;
+            } else if (!Color.StripColors(newSW, true).CaselessEquals(Server.Software) && player != Player.Console) {
+                player.Message("&COnly console may change the actual name of the software.");
+                return;
+            }
+            if (!cmd.IsConfirmed) {
+                player.Confirm(cmd, "This will change how the server software shows up on the server list from \"&F{0}&S\" to \"&F{1}&S\"", oldSW, newSW);
+                return;
+            }
+
+            Server.Software = newSW;
+            player.Message("Server software was changed from \"&F{0}&S\" to \"&F{1}&S\"", oldSW, newSW);
+        }
         #endregion
     }
 }

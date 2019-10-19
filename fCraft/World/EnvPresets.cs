@@ -1,4 +1,4 @@
-﻿// ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,6 +25,12 @@ namespace fCraft {
         // EnvMapAppearance v.2
         public short CloudLevel { get; set; }
         public short MaxViewDistance { get; set; }
+        // EnvProperty
+        public short CloudsSpeed { get; set; }
+        public short WeatherSpeed { get; set; }
+        public short WeatherFade { get; set; }
+        public short SkyboxVerSpeed { get; set; }
+        public short SkyboxHorSpeed { get; set; }
         // EnvWeatherType
         public byte WeatherType { get; set; }
         
@@ -62,6 +68,11 @@ namespace fCraft {
             preset.CloudLevel = (world.CloudsHeight == world.map.Height+2 ? short.MinValue : world.CloudsHeight);
             preset.MaxViewDistance = world.MaxFogDistance;
             preset.WeatherType = world.Weather;
+            preset.CloudsSpeed = world.CloudsSpeed;
+            preset.WeatherFade = world.WeatherFade;
+            preset.WeatherSpeed = world.WeatherSpeed;
+            preset.SkyboxHorSpeed = world.SkyboxHorSpeed;
+            preset.SkyboxVerSpeed = world.SkyboxVerSpeed;
             Presets.Add(preset);
             SaveAll();
         }
@@ -86,6 +97,11 @@ namespace fCraft {
             world.CloudsHeight = preset.CloudLevel;
             world.MaxFogDistance = preset.MaxViewDistance;
             world.Weather = preset.WeatherType;
+            world.CloudsSpeed = preset.CloudsSpeed;
+            world.WeatherFade = preset.WeatherFade;
+            world.WeatherSpeed = preset.WeatherSpeed;
+            world.SkyboxHorSpeed = preset.SkyboxHorSpeed;
+            world.SkyboxVerSpeed = preset.SkyboxVerSpeed;
             foreach (Player p in world.Players) {
                 p.SendEnvSettings();
             }
@@ -96,11 +112,12 @@ namespace fCraft {
             EnvPresets preset = Find(name);
             if (preset != null) {
                 Presets.Remove(preset);
+                SaveAll();
             }
         }
 
         public static void ReloadAll() {
-            Presets.Clear();
+            if (Presets != null) Presets.Clear();
             LoadAll();
         }
 
@@ -117,12 +134,24 @@ namespace fCraft {
         }
 
         public static void LoadAll() {
-            if (!File.Exists(Paths.EnvPresetsFileName)) return;
+            if (!File.Exists(Paths.EnvPresetsFileName) || File.ReadAllText(Paths.EnvPresetsFileName) == "") return;
 
             try {
                 using (Stream s = File.OpenRead(Paths.EnvPresetsFileName)) {
-                    Presets = (List<EnvPresets>)
+                    try {
+                        Presets = (List<EnvPresets>)
                         JsonSerializer.DeserializeFromStream(typeof(List<EnvPresets>), s);
+                    }
+                    catch {
+                        long unixTimestamp = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).ToSeconds();
+                        string newFile = "BrokenEnvPreset_" + unixTimestamp + ".txt";
+                        File.Copy(Paths.EnvPresetsFileName, newFile);
+                        File.Delete(Paths.EnvPresetsFileName);
+                        Logger.Log(LogType.Warning, "EnvPresets.LoadAll: File not proper json syntax. File was renamed to :" + newFile);
+                        Presets = new List<EnvPresets>();
+                        SaveAll();
+                        return;
+                    }
                 }
                 int count = 0;
                 for (int i = 0; i < Presets.Count; i++) {
@@ -136,7 +165,7 @@ namespace fCraft {
                 }
                 Logger.Log(LogType.SystemActivity, "EnvPresets.Load: Loaded " + count + " presets");
             } catch (Exception ex) {
-                Presets = null;
+                Presets = new List<EnvPresets>();
                 Logger.Log(LogType.Error, "EnvPresets.Load: " + ex);
             }
         }

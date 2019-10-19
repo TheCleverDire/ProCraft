@@ -1,4 +1,4 @@
-﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -43,7 +43,8 @@ namespace fCraft {
         /// <summary> Default terrain file for each world.</summary>
         public static string DefaultTerrain { get; set; }
 
-
+        /// <summary> Software name that shows up on the server list on classicube.</summary>
+        public static string Software = "&cP&4R&6O&eC&aR&2A&bF&3T";
 
         internal static int MaxUploadSpeed, // set by Config.ApplyConfig
                             BlockUpdateThrottling; // used when there are no players in a world
@@ -464,17 +465,17 @@ namespace fCraft {
             if (!Directory.Exists("./Bot")) Directory.CreateDirectory("./Bot");
             if (!Directory.Exists("./fonts")) Directory.CreateDirectory("./fonts");            
        
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/Funfacts.txt", "./Bot/Funfacts.txt");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/Jokes.txt", "./Bot/Jokes.txt");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/Protips.txt", "./Bot/Protips.txt");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/Adjectives.txt", "./Bot/Adjectives.txt");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/Nouns.txt", "./Bot/Nouns.txt");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/Funfacts.txt", "./Bot/Funfacts.txt");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/Jokes.txt", "./Bot/Jokes.txt");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/Protips.txt", "./Bot/Protips.txt");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/Adjectives.txt", "./Bot/Adjectives.txt");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/Nouns.txt", "./Bot/Nouns.txt");
             
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/MOTDList.txt", "./MOTDList.txt");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/comicsans.ttf", "./fonts/comicsans.ttf");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/mcclassic.ttf", "./fonts/mcclassic.ttf");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/microsoft.ttf", "./fonts/microsoft.ttf");
-            DownloadResource("https://123dmwm.tk/ProCraft/resources/minecraft.ttf", "./fonts/minecraft.ttf");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/MOTDList.txt", "./MOTDList.txt");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/comicsans.ttf", "./fonts/comicsans.ttf");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/mcclassic.ttf", "./fonts/mcclassic.ttf");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/microsoft.ttf", "./fonts/microsoft.ttf");
+            DownloadResource("https://123DMWM.com/ProCraft/resources/minecraft.ttf", "./fonts/minecraft.ttf");
         }
         
         static void DownloadResource(string url, string file) {

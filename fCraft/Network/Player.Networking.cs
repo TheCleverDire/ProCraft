@@ -1,4 +1,4 @@
-﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 //#define DEBUG_MOVEMENT
 using System;
 using System.Collections.Generic;
@@ -798,7 +798,7 @@ namespace fCraft {
                 Message("&bClick &aOptions &b-> &aMode &b-> &aEnhanced &bin the launcher.");
             } else if (!IsModernClient(ClientName)) {
                 Message("&bIt is recommended that you use the ClassicalSharp client!");
-                Message("&9http://123dmwm.tk/cs &bredirects to the official download.");
+                Message("&9http://123DMWM.com/cs &bredirects to the official download.");
             }
 
 

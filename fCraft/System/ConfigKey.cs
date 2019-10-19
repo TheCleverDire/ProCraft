@@ -1,4 +1,4 @@
-﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 using System.Diagnostics;
 
 namespace fCraft {
@@ -161,7 +161,7 @@ the build permission for new worlds will default to this rank." )]
 make sure to move the map files before starting the server again." )]
         MapPath,
 
-        [StringKey(ConfigSection.Worlds, "http://123dmwm.tk/TexturePacks/64xDefault.zip",
+        [StringKey(ConfigSection.Worlds, "http://123DMWM.com/TexturePacks/64xDefault.zip",
 @"Custom URL for world terrain")]
         DefaultTerrain,
 

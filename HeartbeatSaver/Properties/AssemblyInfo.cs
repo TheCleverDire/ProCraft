@@ -8,9 +8,9 @@ using System.Resources;
 [assembly: AssemblyTitle( "ProCraft HeartbeatSaver" )]
 [assembly: AssemblyDescription( "ProCraft standalone heartbeat sender" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("123DMWM.tk")]
+[assembly: AssemblyCompany("123DMWM.com")]
 [assembly: AssemblyProduct( "ProCraft HeartbeatSaver" )]
-[assembly: AssemblyCopyright("ProCraft is Copyright © Joseph Beauvais 2014-2015")]
+[assembly: AssemblyCopyright("ProCraft is Copyright © Joseph Beauvais 2014-2018")]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

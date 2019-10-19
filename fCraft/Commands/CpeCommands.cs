@@ -1,4 +1,4 @@
-﻿// ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -954,7 +954,15 @@ namespace fCraft {
                 url = url.Replace("?dl=0", "");
             } 
         }
-        
+
+        static bool supportsEnv(Player p) {
+            return p.Supports(CpeExt.EnvWeatherType) &&
+                p.Supports(CpeExt.EnvColors) &&
+                (p.Supports(CpeExt.EnvMapAppearance) || 
+                p.Supports(CpeExt.EnvMapAppearance2) || 
+                p.Supports(CpeExt.EnvMapAspect));
+        }
+
         static void ShowEnvSettings(Player player, World world) {
             player.Message("Environment settings for world {0}&S:", world.ClassyName);
             player.Message("  Cloud: {0}   Fog: {1}   Sky: {2}",
@@ -971,15 +979,17 @@ namespace fCraft {
             player.Message("  Cloud speed: {0}  Weather speed: {1}",
                            (world.CloudsSpeed / 256f).ToString("F2") + "%",
                            (world.WeatherSpeed / 256f).ToString("F2") + "%");
-            player.Message("  Weather fade rate: {0}",
-                           (world.WeatherFade / 128f).ToString("F2") + "%");
-            player.Message("  Water block: {1}  Bedrock block: {0}",
-                           world.EdgeBlock, world.HorizonBlock);
+            player.Message("  Weather: {1}   Weather fade rate: {0}",
+                           (world.WeatherFade / 128f).ToString("F2") + "%", ((WeatherType)world.Weather).ToString());
+            player.Message("  Water block: {1}  Bedrock block: {0}  Bedrock offset: {2}",
+                           world.EdgeBlock, world.HorizonBlock, world.SidesOffset);
+            player.Message("  Skybox Vertical Speed: {0}  Skybox Horizontal Speed: {1}",
+                           (world.SkyboxVerSpeed / 1024f).ToString("F2") + "%",
+                           (world.SkyboxHorSpeed / 1024f).ToString("F2") + "%");
             player.Message("  Texture: {0}", world.GetTexture());
-            if (!player.IsUsingWoM) {
-                player.Message("  You need ClassiCube or ClassicalSharp client to see the changes.");
-            }
+            if (!supportsEnv(player)) player.Message(Color.Warning + "You need ClassiCube or ClassicalSharp client to see the changes.");
         }
+        
         
         static void ResetEnv(Player player, World world) {
             world.FogColor = null;
@@ -999,6 +1009,7 @@ namespace fCraft {
             world.WeatherFade = 128;
             world.SkyboxHorSpeed = 0;
             world.SkyboxVerSpeed = 0;
+            world.Weather = 0;
             
             Logger.Log(LogType.UserActivity,
                        "Env: {0} {1} reset environment settings for world {2}",
@@ -1056,7 +1067,7 @@ namespace fCraft {
         static void SetEnvAppearanceShort(Player player, World world, string value, EnvProp prop,
                                           string name, short defValue, ref short target) {
             short amount;
-            if (IsReset(value)) {
+            if (IsReset(value) && prop != EnvProp.SidesOffset) {
                 player.Message("Reset {0} for {1}&S to normal", name, world.ClassyName);
                 target = defValue;
             } else if (!short.TryParse(value, out amount)) {
@@ -1110,7 +1121,7 @@ namespace fCraft {
             Category = CommandCategory.CPE | CommandCategory.World | CommandCategory.New,
             Permissions = new[] { Permission.ManageWorlds },
             Help = "Environment preset commands&N" +
-                "Options are: Delete, Edit, Info, List, Load, Save&N" +
+                "Options are: Delete, Info, List, Load, Save, Update&N" +
                 "See &H/Help EnvPreset <option>&S for details about each variable. ",
             HelpSections = new Dictionary<string, string>{
                 { "save",   "&H/EnvPreset Save <PresetName> &N&S" +
@@ -1124,7 +1135,9 @@ namespace fCraft {
                 { "list",   "&H/EnvPreset List&N&S" +
                         "Lists all Env presets by name."},
                 { "update", "&H/EnvPreset Update <PresetName>&N&S" +
-                        "Updates an Env preset with the current world settings."}
+                        "Updates an Env preset with the current world settings."},
+                { "reload", "&H/EnvPreset Reload&N&S" +
+                        "Updates all loaded presets from file. For use when editing the preset file manually."}
             },
             Usage = "/EnvPreset <Option> [Args]",
             Handler = EnvPresetHandler
@@ -1146,51 +1159,50 @@ namespace fCraft {
 
             switch (option.ToLower()) {
                 case "save":
+                case "make":
+                case "create":
+                case "add":
+                case "new":
                     if (!EnvPresets.exists(name)) {
                         EnvPresets.CreateEnvPreset(world, name);
                         player.Message("Saved Env settings from world \"{0}\" to preset named \"{1}\"", world.Name, name);
-                        break;
                     } else {
                         player.Message("A preset with the name \"{0}\" already exists", name);
-                        break;
                     }
+                    break;
                 case "load":
                     if (EnvPresets.exists(name)) {
                         EnvPresets.LoadupEnvPreset(world, name);
                         player.Message("Loaded Env settings from preset named \"{0}\"", name);
                     } else {
                         player.Message("A preset with the name \"{0}\" does not exist", name);
-                        break;
                     }
                     break;
+                case "delete":
                 case "remove":
-                    if (cmd.IsConfirmed) {
-                        if (EnvPresets.exists(name)) {
+                    if (EnvPresets.exists(name)) {
+                        if (cmd.IsConfirmed) {
                             EnvPresets.RemoveEnvPreset(name);
                             player.Message("Deleted Env preset named \"{0}\"", name);
                         } else {
-                            player.Message("A preset with the name \"{0}\" does not exist", name);
-                            break;
+                            player.Confirm(cmd, "This will delete the preset permanently");
                         }
                     } else {
-                        player.Confirm(cmd, "This will delete the preset permanently");
-                        break;
+                        player.Message("A preset with the name \"{0}\" does not exist", name);
                     }
                     break;
                 case "update":
-                    if (cmd.IsConfirmed) {
-                        if (EnvPresets.exists(name)) {
+                    if (EnvPresets.exists(name)) {
+                        if (cmd.IsConfirmed) {
                             EnvPresets.RemoveEnvPreset(name);
                             EnvPresets.CreateEnvPreset(world, name);
                             player.Message("Updated the preset \"{1}\" to the current worlds env settings", world.Name, name);
                         } else {
-                            player.Message("A preset with the name \"{0}\" does not exist", name);
-                            break;
+                            player.Confirm(cmd, "This will update the specified Env Preset. Cannot be undone!");
                         }
                     } else {
-                        player.Confirm(cmd, "This will erase and update the specified Env Preset");
-                        break;
-                    }
+                        player.Message("A preset with the name \"{0}\" does not exist", name);
+                    }                    
                     break;
                 case "info":
                     if ((preset = EnvPresets.Find(name)) != null) {
@@ -1199,24 +1211,34 @@ namespace fCraft {
                                        preset.CloudColor == null ? "normal" : '#' + preset.CloudColor,
                                        preset.FogColor == null ? "normal" : '#' + preset.FogColor,
                                        preset.SkyColor == null ? "normal" : '#' + preset.SkyColor);
-                        player.Message("  Shadow: {0}   Light: {1}  Horizon level: {2}",
+                        player.Message("  Shadow: {0}   Sunlight: {1}  Edge level: {2}",
                                        preset.ShadowColor == null ? "normal" : '#' + preset.ShadowColor,
                                        preset.LightColor == null ? "normal" : '#' + preset.LightColor,
                                        preset.HorizonLevel <= 0 ? "normal" : preset.HorizonLevel + " blocks");
                         player.Message("  Clouds height: {0}  Max fog distance: {1}",
                                        preset.CloudLevel == short.MinValue ? "normal" : preset.CloudLevel + " blocks",
                                        preset.MaxViewDistance <= 0 ? "(no limit)" : preset.MaxViewDistance.ToString());
-                        player.Message("  Horizon  block: {0}  Border block: {1}",
-                                       preset.HorizonBlock, preset.BorderBlock);
+                        player.Message("  Cloud speed: {0}  Weather speed: {1}",
+                                       (preset.CloudsSpeed / 256f).ToString("F2") + "%",
+                                       (preset.WeatherSpeed / 256f).ToString("F2") + "%");
+                        player.Message("  Weather: {1}   Weather fade rate: {0}",
+                                       (preset.WeatherFade / 128f).ToString("F2") + "%", ((WeatherType)preset.WeatherType).ToString());
+                        player.Message("  Water block: {1}  Bedrock block: {0}  Bedrock offset: {2}",
+                                       preset.BorderBlock, preset.HorizonBlock, preset.SidesOffset);
+                        player.Message("  Skybox Vertical Speed: {0}  Skybox Horizontal Speed: {1}",
+                                       (preset.SkyboxVerSpeed / 1024f).ToString("F2") + "%",
+                                       (preset.SkyboxHorSpeed /1024f).ToString("F2") + "%");
                         player.Message("  Texture: {0}", preset.TextureURL);
                     }
                     break;
                 case "list":
-                    string list = "Presets: &N";
-                    foreach (EnvPresets env in EnvPresets.Presets.OrderBy(p => p.Name)) {
-                        list = list + env.Name + ", ";
+                    if (EnvPresets.Presets != null) {
+                        string list = "Presets: &N";
+                        foreach (EnvPresets env in EnvPresets.Presets.OrderBy(p => p.Name)) {
+                            list = list + env.Name + ", ";
+                        }
+                        player.Message(list.Remove(list.Length - 2, 2));
                     }
-                    player.Message(list.Remove(list.Length - 2, 2));
                     break;
                 case "reload":
                     if (player.Info.Rank == RankManager.HighestRank) {
@@ -1347,7 +1369,7 @@ namespace fCraft {
                 case "tex":
                 case "texture":
                 case "terrain":
-                    p.Message("Terrain IDs: &9http://123dmwm.tk/ID-Overlay.png");
+                    p.Message("Terrain IDs: &9http://123DMWM.com/ID-Overlay.png");
                     p.Message("Current world terrain: &9{0}", p.World.Texture.CaselessEquals("default") ? Server.DefaultTerrain : p.World.Texture);
                     break;
                 default:

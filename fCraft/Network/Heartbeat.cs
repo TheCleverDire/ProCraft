@@ -1,4 +1,4 @@
-﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2018 Joseph Beauvais <123DMWM@gmail.com>
+﻿// Part of fCraft | Copyright 2009-2015 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt //Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com> //Copyright (c) <2012-2014> <LeChosenOne, DingusBungus> | ProCraft Copyright 2014-2019 Joseph Beauvais <123DMWM@gmail.com>
 
 using System;
 using System.Collections.Generic;
@@ -298,14 +298,15 @@ namespace fCraft
         internal Uri CreateUri() {
             UriBuilder ub = new UriBuilder(HeartbeatUri);
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}&software=ProCraft", 
+            sb.AppendFormat("public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}&software={7}", 
                 IsPublic,
                 MaxPlayers, 
                 PlayerCount, 
                 Port, 
                 ProtocolVersion, 
                 Uri.EscapeDataString(Salt),
-                Uri.EscapeDataString(ServerName));
+                Uri.EscapeDataString(ServerName),
+                Server.Software.Replace("&", "%26"));
             foreach (var pair in CustomData) {
                 sb.AppendFormat("&{0}={1}", 
                     Uri.EscapeDataString(pair.Key), 

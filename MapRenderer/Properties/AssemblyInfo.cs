@@ -9,9 +9,9 @@ using System.Resources;
 [assembly: AssemblyTitle( "ProCraft MapRenderer" )]
 [assembly: AssemblyDescription( "Isometric map renderer for ProCraft" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("123DMWM.tk")]
+[assembly: AssemblyCompany("123DMWM.com")]
 [assembly: AssemblyProduct( "ProCraft MapRenderer" )]
-[assembly: AssemblyCopyright("ProCraft is Copyright © Joseph Beauvais 2014-2015")]
+[assembly: AssemblyCopyright("ProCraft is Copyright © Joseph Beauvais 2014-2018")]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

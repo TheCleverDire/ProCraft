@@ -9,9 +9,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle( "ProCraft core" )]
 [assembly: AssemblyDescription( "Core components of ProCraft, a better Minecraft Classic server." )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "123DMWM.tk" )]
+[assembly: AssemblyCompany( "123DMWM.com" )]
 [assembly: AssemblyProduct( "ProCraft core" )]
-[assembly: AssemblyCopyright( "ProCraft is Copyright © Joseph Beauvais 2014-2015" )]
+[assembly: AssemblyCopyright("ProCraft is Copyright © Joseph Beauvais 2014-2018")]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
